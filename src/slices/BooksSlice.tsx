@@ -1,19 +1,32 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+// type SortType =  '' | 'category' | 'author'
 
 interface stateInterface {
-  entities: object;
+  entities: {}
   status: 'idle' | 'loading' | 'loaded';
+  // category: string;
+  // sort: SortType,
 }
 
-const initialState: stateInterface = {
+const initialState: stateInterface= {
   entities: {},
   status: 'idle',
-};
+  // category: '',
+  // sort: '',
+} 
+
 
 export const booksSlice = createSlice({
   name: 'books',
   initialState,
-  reducers: {},
+  reducers: {
+    // changeCategory(state, action: PayloadAction<string>) {
+    //   state.category = action.payload
+    // },
+    // changeSort(state, action: PayloadAction<SortType>) {
+    //   state.sort = action.payload
+    // },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(fetchRecommendations.pending, (state) => {
@@ -36,39 +49,53 @@ export const booksSlice = createSlice({
       })
       .addCase(fetchAuthors.pending, (state) => {
         state.status = 'loading';
-      })
+      });
   },
 });
 
 export const fetchCategories = createAsyncThunk(
   'books/fetchCategories',
-  async (value) => {
-    const response = await fetch(
-      `https://openlibrary.org/subjects/${value}.json`
-    );
-    const json = await response.json();
-    const works = json.works;
+  async (pagePayload: {
+    sortKey: string;
+    perPage: number;
+    activePage: number;
+  }) => {
+    const { sortKey, perPage, activePage } = pagePayload;
+    const offset: number = activePage * perPage - perPage
 
-    return works;
+    const response = await fetch(
+      `https://openlibrary.org/subjects/${sortKey}.json?limit=${perPage}&offset=${offset}`
+    );
+    return await response.json();
   }
 );
 
 export const fetchAuthors = createAsyncThunk(
   'books/fetchAuthors',
-  async (value) => {
+  async (pagePayload: {
+    sortKey: string;
+    perPage: number;
+    activePage: number;
+  }) => {
+    const { sortKey, perPage, activePage } = pagePayload;
+    const offset: number = activePage * perPage - perPage
+
     const response = await fetch(
-      `https://openlibrary.org${value}/works.json`
+      `https://openlibrary.org${sortKey}/works.json?limit=${perPage}&offset=${offset}`
     );
-    const json = await response.json();
-    const works = json.entries;
-    return works;
+    return await response.json();
   }
 );
 
-export const fetchRecommendations = createAsyncThunk(
+type payloadCreator = { perPage: number; activePage: number }
+
+export const fetchRecommendations = createAsyncThunk<payloadCreator, payloadCreator>(
   'books/fetchRecommendations',
-  async (pagePayload: {perPage: string, activePage: number}) => {
-    const {perPage, activePage} = pagePayload
+  async (pagePayload: {
+    perPage: number;
+    activePage: number;
+  }) => {
+    const { perPage, activePage } = pagePayload;
     try {
       const response = await fetch(
         `https://openlibrary.org/people/mekBot/books/want-to-read.json?limit=${perPage}&page=${activePage}`
@@ -77,11 +104,11 @@ export const fetchRecommendations = createAsyncThunk(
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
-      
+
       const json = await response.json();
       const entries = json.reading_log_entries;
       const works = entries.map((entity: any) => entity.work);
-      return {...json, reading_log_entries: [...works]}
+      return { ...json, reading_log_entries: [...works] };
     } catch (err) {
       console.error(`Promise error: ${err}`);
     }

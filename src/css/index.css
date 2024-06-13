@@ -94,6 +94,14 @@ a {
 
 /* CATEGORIES */
 
+.category_name {
+  display: flex;
+  justify-content: center;
+  padding-left: 20px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
 .sort_main {
   padding-left: 20px;
   width: 200px;

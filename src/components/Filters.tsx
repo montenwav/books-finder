@@ -1,10 +1,56 @@
 import { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
 import { changePage } from '../slices/PagesSlice';
-import { changePerPage } from '../slices/FiltersSlice';
+import { useAppDispatch, useAppSelector } from '../hooks/reducerHooks';
+import {
+  fetchRecommendations,
+  fetchAuthors,
+  fetchCategories,
+} from '../slices/BooksSlice';
+import {changePerPage} from '../slices/FiltersSlice'
 
 export default function Filters() {
-  const { status } = useSelector((state: any) => state.books);
+  let sortKey = localStorage.getItem('sortKey') || '';
+  let sortBy = localStorage.getItem('sortBy') || 'recommendations';
+  
+  const { entities, status } = useAppSelector((state: any) => state.books);
+  const { activePage } = useAppSelector((state) => state.pages);
+  const { perPage } = useAppSelector((state) => state.filters);
+
+  const dispatch = useAppDispatch();
+
+  // Pagination
+  const handleChangePage = (activePage: number) => {
+    let numberOfPages = Math.ceil(
+      entities.numFound || entities.work_count / perPage
+    );
+    if (activePage <= 1) activePage = 1;
+    else if (activePage > numberOfPages) activePage = numberOfPages;
+
+    localStorage.setItem('activePage', JSON.stringify(activePage));
+    dispatch(changePage({ numberOfPages, activePage }));
+
+    switch (sortBy) {
+      case 'category': {
+        dispatch(fetchCategories({ sortKey, perPage, activePage }));
+        break;
+      }
+      case 'author': {
+        dispatch(fetchAuthors({ sortKey, perPage, activePage }));
+        break;
+      }
+      case 'recommendations': {
+        dispatch(fetchRecommendations({ perPage, activePage }));
+        break;
+      }
+      default: {
+        throw new Error('Сортировка не найдена');
+      }
+    }
+  };
+
+  useEffect(() => {
+    handleChangePage(activePage);
+  }, [perPage]);
 
   return (
     <>
@@ -14,7 +60,9 @@ export default function Filters() {
           <PerPage />
         </div>
         <div className="filters-right">
-          {status === 'loaded' && <Pagination />}
+          {status === 'loaded' && (
+            <Pagination handleChangePage={handleChangePage} />
+          )}
         </div>
       </div>
       <div className="hr"></div>
@@ -43,49 +91,32 @@ const SortBy = () => {
 };
 
 const PerPage = () => {
-  const { perPage } = useSelector((state: any) => state.filters);
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch()
+  const {perPage} = useAppSelector(state => state.filters)
 
-  const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    localStorage.setItem('perPageStorage', event.target.value);
+  const handleChange = (event: any) => {
     dispatch(changePerPage(event.target.value));
+    localStorage.setItem('perPage', JSON.stringify(event.target.value));
   };
 
   return (
     <div className="per-page-main">
-      <select value={perPage} onChange={handleChange}>
-        <option value="3">3</option>
-        <option value="6">6</option>
-        <option value="9">9</option>
-        <option value="12">12</option>
+      <select value={perPage} onChange={(event) => handleChange(event)}>
+        <option value={3}>3</option>
+        <option value={6}>6</option>
+        <option value={9}>9</option>
+        <option value={12}>12</option>
       </select>
     </div>
   );
 };
 
-const Pagination = () => {
-  const { entities } = useSelector((state: any) => state.books);
-  const { activePage } = useSelector((state: any) => state.pages);
-  const { perPage } = useSelector((state: any) => state.filters);
-
-  const dispatch = useDispatch();
-
-  const activePageStore: number | null = Number(
-    localStorage.getItem('activePageStore')
-  );
-
-  const handleChangePage = (activePage: number) => {
-    let numberOfPages = Math.ceil(entities.numFound / perPage);
-    if (activePage <= 1) activePage = 1;
-    else if (activePage > numberOfPages) activePage = numberOfPages;
-
-    localStorage.setItem('activePageStore', JSON.stringify(activePage));
-    dispatch(changePage({ numberOfPages, activePage }));
-  };
-
-  useEffect(() => {
-      handleChangePage(activePageStore);
-  }, []);
+const Pagination = ({
+  handleChangePage,
+}: {
+  handleChangePage: (activePage: number) => void;
+}) => {
+  const { activePage } = useAppSelector((state) => state.pages);
 
   return (
     <div className="pagination_main">
@@ -136,7 +167,7 @@ const PaginationPages = ({
 }: {
   handleChangePage: (activePage: number) => void;
 }) => {
-  const { pagesArr } = useSelector((state) => state.pages);
+  const { pagesArr } = useAppSelector((state) => state.pages);
 
   return (
     <>

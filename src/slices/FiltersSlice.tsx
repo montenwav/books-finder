@@ -1,21 +1,21 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { PayloadAction, createSlice } from '@reduxjs/toolkit';
+
+const perPage: number = Number(localStorage.getItem('perPage'))
 
 interface stateInterface {
-  perPage: string
+  perPage: number
 }
 
-const getPerPage = localStorage.getItem('perPageStorage');
-
 const initialState: stateInterface = {
-  perPage: getPerPage ? getPerPage : '12',
+    perPage: 12 || perPage
 };
 
 export const filtersSlice = createSlice({
   name: 'filters',
   initialState,
   reducers: {
-    changePerPage(state, action) {
-      return { ...state, perPage: action.payload };
+    changePerPage(state, action: PayloadAction<number>) {
+        state.perPage = action.payload
     },
   },
 });

@@ -10,9 +10,18 @@ export default function Header() {
 }
 
 export const LeftHeader = () => {
+  const handleClear = () => {
+
+    localStorage.setItem('category', '');
+    localStorage.setItem('sortKey', '');
+    localStorage.setItem('sortBy', 'recommendations');
+    localStorage.setItem('activePage', '1');
+    localStorage.setItem('perPage', '12');
+  }
+
   return (
     <a href="/">
-    <div className="left_header">
+    <div onClick={handleClear} className="left_header">
       <img src="/favicon.png" />
       <h4>BOOKS FINDER</h4>
     </div>

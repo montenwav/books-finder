@@ -40,6 +40,7 @@ export default function BookPage() {
           `https://openlibrary.org/works/${getKey}.json`
         );
         const json = (await response.json()) as fetchBook;
+
         setBookItem(json);
       })();
     }
@@ -62,7 +63,11 @@ export default function BookPage() {
             return authorObj;
           })
         );
-        setAuthors(fetchedAuthors);
+
+        const filteredAuthors = fetchedAuthors.filter(
+          (_, index) => index < 5
+        );
+        setAuthors(filteredAuthors);
       })();
     }
   }, [bookItem]);
@@ -110,10 +115,11 @@ const BookPageRight = ({ bookItem, authors }: authorsAndbooksType) => {
 
 const BookPageRightDetails = ({ bookItem, authors }: authorsAndbooksType) => {
   const authorPrefix = authors.length === 1 ? 'AUTHOR' : 'AUTHORS';
-  const subjectPrefix = bookItem.subjects.length === 1 ? 'SUBJECT' : 'SUBJECTS';
-  const filteredSubjects = bookItem.subjects.filter(
-    (subject, index) => index < 5
-  );
+
+  let filteredSubjects = null
+  if (bookItem.subjects) {
+    filteredSubjects = bookItem.subjects.filter((_, index) => index < 5);
+  }
 
   return (
     <div className="book_page_right_details">
@@ -126,10 +132,13 @@ const BookPageRightDetails = ({ bookItem, authors }: authorsAndbooksType) => {
         <div className="hr" />
       </div>
 
-      <div className="book_page_subjects">
-        <h3>{subjectPrefix}</h3>
-        {bookItem.subjects && filteredSubjects.join(', ')}
-      </div>
+      {filteredSubjects && (
+        <div className="book_page_subjects">
+          <h3>{bookItem.subjects.length === 1 ? 'SUBJECT' : 'SUBJECTS'}</h3>
+
+          {filteredSubjects && filteredSubjects.join(', ')}
+        </div>
+      )}
     </div>
   );
 };
@@ -161,8 +170,9 @@ const Author = ({ authors }: authorsType) => {
 
   const getAuthors = () => {
     return authors.map((author) => {
-      if (!author.bio || !author.bio.value) return null;
-      return typeof author.bio === 'string' ? author.bio : author.bio.value;
+      if (typeof author.bio === 'string') author.bio;
+      else if (typeof author.bio === 'object') author.bio.value;
+      return null;
     });
   };
 
