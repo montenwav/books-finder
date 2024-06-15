@@ -1,23 +1,51 @@
-import {
-  fetchCategories,
-  fetchAuthors,
-  // changeCategory,
-  // changeSort,
-} from '../slices/BooksSlice';
+import { fetchCategories, fetchAuthors } from '../slices/BooksSlice';
 import { useAppDispatch, useAppSelector } from '../hooks/reducerHooks';
 import { changePage } from '../slices/PagesSlice';
+import { useEffect, useRef, useState } from 'react';
+import {setIsOpenSort} from '../slices/AdaptiveSlice'
 
 export default function Sort() {
   const { status } = useAppSelector((state) => state.books);
+  const { isOpenSort } = useAppSelector((state) => state.adaptive);
+  const dispatch = useAppDispatch()
+
+  const [mainHeight, setMainHeight] = useState<number | null>(null);
+  const [windowSize, setWindowSize] = useState<number>(window.innerWidth);
+  const ref = useRef<HTMLSelectElement>(null);
+
+  useEffect(() => {
+    if (ref.current) {
+      setMainHeight(Math.floor(ref.current.offsetHeight));
+    }
+  }, [status]);
+
+  useEffect(() => {
+    const windowSizeHandler = () => {
+      setWindowSize(window.innerWidth);
+    };
+    window.addEventListener("resize", windowSizeHandler);
+
+    return () => {
+      window.removeEventListener("resize", windowSizeHandler);
+    };
+  }, []);
+
   return (
     <>
-      <section className="sort_main">
-        {status === 'loaded' && (
-          <div className="sort_inner">
-            <Category />
-            <Author />
-          </div>
-        )}
+      <h4
+        onClick={() => dispatch(setIsOpenSort(!isOpenSort))}
+        className="sort_toggle"
+      >
+        {isOpenSort ? 'CLOSE' : 'OPEN'}
+      </h4>
+      <div className="hr"></div>
+      <section
+        className="sort_main"
+        ref={ref}
+        style={{ height: isOpenSort || windowSize > 600 ? `${mainHeight}px` : '0px' }}
+      >
+        <Category />
+        <Author />
       </section>
     </>
   );
@@ -40,22 +68,19 @@ const Category = () => {
 };
 
 const CategoryValues = ({ children }: { children: string }) => {
-  const perPage = 12 || Number(localStorage.getItem('perPage')) 
+  const perPage = 12 || Number(localStorage.getItem('perPage'));
   const dispatch = useAppDispatch();
 
   const handleCategoryDispatch = (children: string) => {
     let activePage = 1;
     const sortKey = children.toLowerCase();
 
-    dispatch(fetchCategories({ sortKey, perPage, activePage }));
-    // dispatch(changeCategory(children));
-
-    // dispatch(changeSort('category'));
     localStorage.setItem('category', children);
     localStorage.setItem('sortBy', 'category');
     localStorage.setItem('sortKey', sortKey);
     localStorage.setItem('activePage', JSON.stringify(activePage));
 
+    dispatch(fetchCategories({ sortKey, perPage, activePage }));
     dispatch(changePage({ activePage }));
   };
 
@@ -96,19 +121,19 @@ const AuthorValues = ({
   authorKey: string;
   children: string;
 }) => {
-  const perPage = 12 || Number(localStorage.getItem('perPage')) 
+  const perPage = 12 || Number(localStorage.getItem('perPage'));
   const dispatch = useAppDispatch();
 
   const changeAuthor = () => {
     let activePage = 1;
     let sortKey = authorKey;
 
-    dispatch(fetchAuthors({ sortKey, perPage, activePage }));
-
     localStorage.setItem('category', children);
     localStorage.setItem('sortBy', 'author');
     localStorage.setItem('activePage', JSON.stringify(activePage));
     localStorage.setItem('sortKey', sortKey);
+
+    dispatch(fetchAuthors({ sortKey, perPage, activePage }));
     dispatch(changePage({ activePage }));
   };
 

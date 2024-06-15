@@ -1,31 +1,19 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-// type SortType =  '' | 'category' | 'author'
 
 interface stateInterface {
   entities: {}
   status: 'idle' | 'loading' | 'loaded';
-  // category: string;
-  // sort: SortType,
 }
 
 const initialState: stateInterface= {
   entities: {},
   status: 'idle',
-  // category: '',
-  // sort: '',
 } 
-
 
 export const booksSlice = createSlice({
   name: 'books',
   initialState,
   reducers: {
-    // changeCategory(state, action: PayloadAction<string>) {
-    //   state.category = action.payload
-    // },
-    // changeSort(state, action: PayloadAction<SortType>) {
-    //   state.sort = action.payload
-    // },
   },
   extraReducers: (builder) => {
     builder

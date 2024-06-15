@@ -48,8 +48,13 @@ export default function Filters() {
     }
   };
 
+
+  let didMout = false;
   useEffect(() => {
-    handleChangePage(activePage);
+    if(!didMout) {
+      handleChangePage(activePage);
+      }
+      didMout = true;
   }, [perPage]);
 
   return (
