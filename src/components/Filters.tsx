@@ -7,14 +7,14 @@ import {
   fetchAuthors,
   fetchCategories,
 } from '../slices/BooksSlice';
-import Pagination from './Pagination'
+import Pagination from './Pagination';
 
 export default function Filters() {
   let sortKey = localStorage.getItem('sortKey') || '';
   let sortBy = localStorage.getItem('sortBy') || 'recommendations';
 
   const { entities, status } = useAppSelector((state: any) => state.books);
-  const { activePage } = useAppSelector((state) => state.pages);
+  const active = useAppSelector((state) => state.pages.activePage);
   const { perPage, filterBy } = useAppSelector((state) => state.filters);
 
   const dispatch = useAppDispatch();
@@ -22,38 +22,38 @@ export default function Filters() {
   // Pagination
 
   const handleChangePage = (activePage: number) => {
-    let numberOfPages = Math.ceil(
-      entities.numFound || entities.work_count / perPage
-    );
-    if (activePage <= 1) activePage = 1;
-    else if (activePage > numberOfPages) activePage = numberOfPages;
+      let numberOfPages = Math.ceil(
+        entities.numFound || entities.work_count / perPage
+      );
+      if (activePage <= 1) activePage = 1;
+      else if (activePage > numberOfPages) activePage = numberOfPages;
 
-    localStorage.setItem('activePage', JSON.stringify(activePage));
-    dispatch(changePage({ numberOfPages, activePage }));
+      localStorage.setItem('activePage', JSON.stringify(activePage));
+      dispatch(changePage({ numberOfPages, activePage }));
 
-    switch (sortBy) {
-      case 'category': {
-        dispatch(fetchCategories({ sortKey, perPage, activePage, filterBy }));
-        break;
+      switch (sortBy) {
+        case 'category': {
+          dispatch(fetchCategories({ sortKey, perPage, activePage, filterBy }));
+          break;
+        }
+        case 'author': {
+          dispatch(fetchAuthors({ sortKey, perPage, activePage }));
+          break;
+        }
+        case 'recommendations': {
+          dispatch(fetchRecommendations({ perPage, activePage }));
+          break;
+        }
+        default: {
+          throw new Error('Сортировка не найдена');
+        }
       }
-      case 'author': {
-        dispatch(fetchAuthors({ sortKey, perPage, activePage }));
-        break;
-      }
-      case 'recommendations': {
-        dispatch(fetchRecommendations({ perPage, activePage }));
-        break;
-      }
-      default: {
-        throw new Error('Сортировка не найдена');
-      }
-    }
   };
 
   let didMout = false;
   useEffect(() => {
     if (!didMout) {
-      handleChangePage(activePage);
+      handleChangePage(active);
     }
     didMout = true;
   }, [perPage, filterBy]);

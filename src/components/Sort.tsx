@@ -4,7 +4,7 @@ import { changePage } from '../slices/PagesSlice';
 import { useEffect, useRef, useState } from 'react';
 import { setIsOpenSort } from '../slices/AdaptiveSlice';
 
-export default function Sort() {
+export const Sort = () => {
   const { status } = useAppSelector((state) => state.books);
   const { isOpenSort } = useAppSelector((state) => state.adaptive);
   const dispatch = useAppDispatch();

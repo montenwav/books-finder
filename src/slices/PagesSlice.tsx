@@ -15,7 +15,7 @@ const initialState: stateInterface = {
     { id: 4, active: false },
     { id: 5, active: false },
   ],
-  activePage: activePageStore
+  activePage: activePageStore || 1
 };
 
 export const pagesSlice = createSlice({

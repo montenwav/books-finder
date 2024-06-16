@@ -1,5 +1,5 @@
 import Filters from '../components/Filters';
-import Sort from '../components/Sort';
+import {Sort} from '../components/Sort';
 import Books from '../components/Books';
 import { useEffect, useRef } from 'react';
 import { useAppDispatch, useAppSelector } from '../hooks/reducerHooks';
