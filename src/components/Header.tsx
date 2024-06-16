@@ -1,6 +1,7 @@
 import { useAppDispatch, useAppSelector } from '../hooks/reducerHooks';
 import { setIsSearching } from '../slices/SearchSlice';
 import Search from './Search'
+import {handleClear} from '../App'
 
 export default function Header() {
   const { isSearching } = useAppSelector((state) => state.search);
@@ -8,7 +9,7 @@ export default function Header() {
   return (
     <nav className="header_main">
       <div className="inner_header">
-        <LeftHeader />
+        <LeftHeader handleClear={handleClear}/>
         <RightHeader />
         {isSearching && <Search />}
       </div>
@@ -16,14 +17,7 @@ export default function Header() {
   );
 }
 
-export const LeftHeader = () => {
-  const handleClear = () => {
-    localStorage.setItem('category', '');
-    localStorage.setItem('sortKey', '');
-    localStorage.setItem('sortBy', 'recommendations');
-    localStorage.setItem('activePage', '1');
-    localStorage.setItem('perPage', '12');
-  };
+export const LeftHeader = ({handleClear}: {handleClear: () => void}) => {
 
   return (
     <>
