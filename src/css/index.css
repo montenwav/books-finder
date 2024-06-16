@@ -13,14 +13,10 @@
   --gray: rgba(44, 44, 44, 0.753);
 }
 
-.outer_main {
-  position: relative;
-  top: 50px;
-}
-
 .inner_main {
   display: flex;
   justify-content: center;
+  padding-top: 50px;
 }
 
 a {

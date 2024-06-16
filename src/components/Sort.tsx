@@ -12,7 +12,7 @@ export const Sort = () => {
   const [mainHeight, setMainHeight] = useState<number | null>(null);
   const [windowSize, setWindowSize] = useState<number>(window.innerWidth);
   const ref = useRef<HTMLSelectElement>(null);
-  
+
   useEffect(() => {
     if (ref.current) {
       setMainHeight(Math.floor(ref.current.offsetHeight));

@@ -1,7 +1,7 @@
 import { useAppDispatch, useAppSelector } from '../hooks/reducerHooks';
 import { setIsSearching } from '../slices/SearchSlice';
-import Search from './Search';
-import { handleClear } from '../App';
+import Search from './Search'
+import {handleClear} from '../App'
 
 export default function Header() {
   const { isSearching } = useAppSelector((state) => state.search);
@@ -9,7 +9,7 @@ export default function Header() {
   return (
     <nav className="header_main">
       <div className="inner_header">
-        <LeftHeader handleClear={handleClear} />
+        <LeftHeader handleClear={handleClear}/>
         <RightHeader />
         {isSearching && <Search />}
       </div>
@@ -17,7 +17,8 @@ export default function Header() {
   );
 }
 
-export const LeftHeader = ({ handleClear }: { handleClear: () => void }) => {
+export const LeftHeader = ({handleClear}: {handleClear: () => void}) => {
+
   return (
     <>
       <div className="left_header">
@@ -33,16 +34,14 @@ export const LeftHeader = ({ handleClear }: { handleClear: () => void }) => {
 };
 
 const RightHeader = () => {
-  const {isSearching} = useAppSelector(state => state.search)
+  const { isSearching } = useAppSelector((state) => state.search);
   const dispatch = useAppDispatch();
 
-  const handleClick = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-    event.stopPropagation()
-    dispatch(setIsSearching(!isSearching))
-  }
-
   return (
-    <div onClick={(event) => handleClick(event)} className="search">
+    <div
+      onClick={() => dispatch(setIsSearching(!isSearching))}
+      className="search"
+    >
       <h4>SEARCH</h4>
       <img height="16px" width="16px" src="/icons/search.svg" />
     </div>
