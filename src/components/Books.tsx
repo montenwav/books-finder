@@ -34,7 +34,7 @@ const DisplayBooks = ({ entities }: { entities: any }) => {
                     `https://covers.openlibrary.org/b/id/${items[entityId].cover_id}-M.jpg`) ||
                   (items[entityId].covers &&
                     `https://covers.openlibrary.org/b/id/${items[entityId].covers[0]}-M.jpg`) ||
-                  '/src/images/no-cover.jpg'
+                  '/images/no-cover.jpg'
                 }
               />
               <p>{items[entityId].title}</p>

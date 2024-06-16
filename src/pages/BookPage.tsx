@@ -64,9 +64,7 @@ export default function BookPage() {
           })
         );
 
-        const filteredAuthors = fetchedAuthors.filter(
-          (_, index) => index < 5
-        );
+        const filteredAuthors = fetchedAuthors.filter((_, index) => index < 5);
         setAuthors(filteredAuthors);
       })();
     }
@@ -82,7 +80,7 @@ export default function BookPage() {
 
         <div className="description_and_author">
           {bookItem.description && <Description bookItem={bookItem} />}
-          {authors.map((author) => author.bio) && <Author authors={authors} />}
+          <Author authors={authors} />
         </div>
       </div>
     );
@@ -116,7 +114,7 @@ const BookPageRight = ({ bookItem, authors }: authorsAndbooksType) => {
 const BookPageRightDetails = ({ bookItem, authors }: authorsAndbooksType) => {
   const authorPrefix = authors.length === 1 ? 'AUTHOR' : 'AUTHORS';
 
-  let filteredSubjects = null
+  let filteredSubjects = null;
   if (bookItem.subjects) {
     filteredSubjects = bookItem.subjects.filter((_, index) => index < 5);
   }
@@ -170,8 +168,10 @@ const Author = ({ authors }: authorsType) => {
 
   const getAuthors = () => {
     return authors.map((author) => {
-      if (typeof author.bio === 'string') author.bio;
-      else if (typeof author.bio === 'object') author.bio.value;
+      if (typeof author.bio !== 'undefined') {
+        if (typeof author.bio === 'string') return author.bio;
+        else return author.bio.value;
+      }
       return null;
     });
   };

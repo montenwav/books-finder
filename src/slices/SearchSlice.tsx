@@ -1,7 +1,16 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 interface stateInterface {
-  searchedItems: object[];
+  searchedItems:
+    | [
+        {
+          author_key: string[];
+          author_name: string[];
+          title: string;
+          key: string;
+        }
+      ]
+    | any[];
   isSearching: boolean;
 }
 
@@ -36,5 +45,5 @@ export const fetchSearch = createAsyncThunk(
   }
 );
 
-export const {setIsSearching} = searchSlice.actions
+export const { setIsSearching } = searchSlice.actions;
 export default searchSlice.reducer;

@@ -37,7 +37,7 @@ a {
   height: 50px;
   width: 100%;
   background: rgba(44, 44, 44, 0.753);
-  backdrop-filter: blur(25px);
+  backdrop-filter: blur(15px);
   position: fixed;
   display: flex;
   justify-content: center;
@@ -150,19 +150,19 @@ a {
   padding-top: 10px;
 }
 
-.search_inner p,
+.search_inner p:not(.not-found),
 .searched_content a {
   width: 90%;
   text-decoration: underline;
   color: black;
 }
 
-.search_inner p:hover,
+.search_inner p:not(.not-found):hover,
 .searched_content a:hover {
   color: var(--gray);
 }
 
-.searched_content p {
+.searched_content p:not(.not-found) {
   padding-top: 10px;
   cursor: pointer;
 }
@@ -190,7 +190,7 @@ a {
 
 .books_inner {
   display: grid;
-  grid-template: repeat(auto-fit, 260px) / repeat(auto-fit, 200px);
+  grid-template-columns: repeat(auto-fit, 200px);
   padding-bottom: 100px;
 }
 
@@ -284,6 +284,18 @@ footer .hr {
 
 /* FITERS SORT */
 
+.per_page_main,
+.filter_by {
+  display: flex;
+  align-items: center;
+}
+
+.per_page_main p,
+.filter_by p {
+  white-space: nowrap;
+  padding-right: 5px;
+}
+
 .books_and_filters {
   width: 800px;
 }
@@ -291,6 +303,7 @@ footer .hr {
 .filters_left {
   display: flex;
   align-items: center;
+  justify-content: center;
   justify-content: space-between;
   width: 200px;
   padding-left: 20px;
@@ -304,7 +317,7 @@ footer .hr {
   padding: 2px;
 }
 
-.sort-by {
+.filter_by {
   margin-right: 20px;
 }
 
@@ -374,6 +387,10 @@ footer .hr {
   display: flex;
 }
 
+.not-found {
+  padding-top: 10px;
+}
+
 /* ADAPTIVE */
 
 .sort_toggle {
@@ -415,8 +432,6 @@ footer .hr {
     flex-direction: column;
     justify-content: center;
     margin: auto;
-
-    width: 50%;
     padding: 0;
   }
 
@@ -427,8 +442,13 @@ footer .hr {
   }
 
   .filters_left {
+    flex-wrap: wrap;
     padding: 0;
     width: 100%;
+  }
+
+  .filter_by {
+    padding-bottom: 10px;
   }
 
   footer {
@@ -436,8 +456,23 @@ footer .hr {
   }
 }
 
-@media (min-width: 600px) {
-  .sort_main {
-    height: 500px;
+@media (max-width: 1000px) {
+  .filters_main {
+    display: flex;
+    flex-direction: column;
+    padding-top: 10px;
+  }
+  .filters_main > div {
+    display: flex;
+    justify-content: center;
+
+  }
+  .books_and_filters {
+    width: 100%;
+  }
+  .filters_left {
+    width: 100%;
+    padding-top: 5px;
+    padding-bottom: 10px;
   }
 }

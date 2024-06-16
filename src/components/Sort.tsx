@@ -2,12 +2,12 @@ import { fetchCategories, fetchAuthors } from '../slices/BooksSlice';
 import { useAppDispatch, useAppSelector } from '../hooks/reducerHooks';
 import { changePage } from '../slices/PagesSlice';
 import { useEffect, useRef, useState } from 'react';
-import {setIsOpenSort} from '../slices/AdaptiveSlice'
+import { setIsOpenSort } from '../slices/AdaptiveSlice';
 
 export default function Sort() {
   const { status } = useAppSelector((state) => state.books);
   const { isOpenSort } = useAppSelector((state) => state.adaptive);
-  const dispatch = useAppDispatch()
+  const dispatch = useAppDispatch();
 
   const [mainHeight, setMainHeight] = useState<number | null>(null);
   const [windowSize, setWindowSize] = useState<number>(window.innerWidth);
@@ -23,10 +23,10 @@ export default function Sort() {
     const windowSizeHandler = () => {
       setWindowSize(window.innerWidth);
     };
-    window.addEventListener("resize", windowSizeHandler);
+    window.addEventListener('resize', windowSizeHandler);
 
     return () => {
-      window.removeEventListener("resize", windowSizeHandler);
+      window.removeEventListener('resize', windowSizeHandler);
     };
   }, []);
 
@@ -42,7 +42,9 @@ export default function Sort() {
       <section
         className="sort_main"
         ref={ref}
-        style={{ height: isOpenSort || windowSize > 600 ? `${mainHeight}px` : '0px' }}
+        style={{
+          height: isOpenSort || windowSize > 600 ? `${mainHeight}px` : '0px',
+        }}
       >
         <Category />
         <Author />
@@ -68,7 +70,8 @@ const Category = () => {
 };
 
 const CategoryValues = ({ children }: { children: string }) => {
-  const perPage = 12 || Number(localStorage.getItem('perPage'));
+  const { filterBy } = useAppSelector((state) => state.filters);
+  const { perPage } = useAppSelector((state) => state.filters);
   const dispatch = useAppDispatch();
 
   const handleCategoryDispatch = (children: string) => {
@@ -80,7 +83,7 @@ const CategoryValues = ({ children }: { children: string }) => {
     localStorage.setItem('sortKey', sortKey);
     localStorage.setItem('activePage', JSON.stringify(activePage));
 
-    dispatch(fetchCategories({ sortKey, perPage, activePage }));
+    dispatch(fetchCategories({ sortKey, perPage, activePage, filterBy }));
     dispatch(changePage({ activePage }));
   };
 
@@ -121,7 +124,7 @@ const AuthorValues = ({
   authorKey: string;
   children: string;
 }) => {
-  const perPage = 12 || Number(localStorage.getItem('perPage'));
+  const { perPage } = useAppSelector((state) => state.filters);
   const dispatch = useAppDispatch();
 
   const changeAuthor = () => {

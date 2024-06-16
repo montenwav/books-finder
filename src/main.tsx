@@ -1,5 +1,5 @@
-import './css/index.css';
-import './css/BookPage.css';
+import './css/index.css'
+import './css/bookPage.css'
 
 import React from 'react';
 import ReactDOM from 'react-dom/client';
