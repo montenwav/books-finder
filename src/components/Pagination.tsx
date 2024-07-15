@@ -33,7 +33,7 @@ const PaginationPages = ({
 
   return (
     <>
-      {pagesArr.map((pageItem: any) => (
+      {pagesArr.map((pageItem: { id: number; active: boolean }) => (
         <div
           onClick={() => handleChangePage(pageItem.id)}
           key={pageItem.id}
@@ -46,7 +46,13 @@ const PaginationPages = ({
   );
 };
 
-const Arrow = ({ className, onClick }: { className: string; onClick: any }) => {
+const Arrow = ({
+  className,
+  onClick,
+}: {
+  className: string;
+  onClick: () => void;
+}) => {
   return (
     <div className="arrow_bg">
       <svg

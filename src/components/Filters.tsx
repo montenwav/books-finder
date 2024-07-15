@@ -6,31 +6,35 @@ import {
   fetchRecommendations,
   fetchAuthors,
   fetchCategories,
-} from '../slices/BooksSlice';
+} from '../fetchThunks';
 import Pagination from './Pagination';
 
-export default function Filters() {
-  let sortKey = localStorage.getItem('sortKey') || '';
-  let sortBy = localStorage.getItem('sortBy') || 'recommendations';
+type worksType = { numFound?: number; work_count?: number };
 
-  const { entities, status } = useAppSelector((state: any) => state.books);
-  const active = useAppSelector((state) => state.pages.activePage);
+export default function Filters() {
+  const sortKey = localStorage.getItem('sortKey') || '';
+  const sortBy = localStorage.getItem('sortBy') || 'recommendations';
+
+  const { entities, status } = useAppSelector((state) => state.books);
+  const { activePage } = useAppSelector((state) => state.pages);
   const { perPage, filterBy } = useAppSelector((state) => state.filters);
 
   const dispatch = useAppDispatch();
 
   // Pagination
-
   const handleChangePage = (activePage: number) => {
-      let numberOfPages = Math.ceil(
-        entities.numFound || entities.work_count / perPage
-      );
-      if (activePage <= 1) activePage = 1;
-      else if (activePage > numberOfPages) activePage = numberOfPages;
+    let didMount = false;
 
-      localStorage.setItem('activePage', JSON.stringify(activePage));
-      dispatch(changePage({ numberOfPages, activePage }));
+    const works: number | undefined =
+      (entities as worksType).numFound || (entities as worksType).work_count;
+    const numberOfPages = Math.ceil(works! / perPage);
+    if (activePage <= 1) activePage = 1;
+    else if (activePage > numberOfPages) activePage = numberOfPages;
 
+    localStorage.setItem('activePage', JSON.stringify(activePage));
+    dispatch(changePage({ activePage, numberOfPages }));
+
+    if (didMount) {
       switch (sortBy) {
         case 'category': {
           dispatch(fetchCategories({ sortKey, perPage, activePage, filterBy }));
@@ -48,14 +52,13 @@ export default function Filters() {
           throw new Error('Сортировка не найдена');
         }
       }
+    }
+    didMount = true;
   };
 
-  let didMout = false;
+  // Запускает карточки
   useEffect(() => {
-    if (!didMout) {
-      handleChangePage(active);
-    }
-    didMout = true;
+    handleChangePage(activePage);
   }, [perPage, filterBy]);
 
   return (
@@ -105,15 +108,15 @@ const PerPage = () => {
   const { perPage } = useAppSelector((state) => state.filters);
   const dispatch = useAppDispatch();
 
-  const handleChange = (event: any) => {
-    dispatch(setPerPage(event.target.value));
+  const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    dispatch(setPerPage(Number(event.target.value)));
     localStorage.setItem('perPage', JSON.stringify(event.target.value));
   };
 
   return (
     <div className="per_page_main">
       <p>PER PAGE: </p>
-      <select value={perPage} onChange={(event) => handleChange(event)}>
+      <select value={perPage} onChange={handleChange}>
         <option value={3}>3</option>
         <option value={6}>6</option>
         <option value={9}>9</option>

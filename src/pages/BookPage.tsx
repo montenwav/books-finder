@@ -1,28 +1,12 @@
 import { useEffect, useState } from 'react';
 import { useLoaderData } from 'react-router-dom';
-
-interface fetchBook {
-  covers: number[];
-  title: string;
-  authors: [{ author: { key: string } }];
-  subjects: string[];
-  description?: { value: string } | string;
-}
-
-type fetchAuthors = {
-  name: string;
-  bio?: { value: string };
-};
-
-type bookItemType = {
-  bookItem: fetchBook;
-};
-
-type authorsType = {
-  authors: fetchAuthors[];
-};
-
-type authorsAndbooksType = bookItemType & authorsType;
+import {
+  fetchBook,
+  fetchAuthors,
+  bookItemType,
+  authorsType,
+  authorsAndBooksType,
+} from '../types/bookPageTypes';
 
 export default function BookPage() {
   const [bookItem, setBookItem] = useState<fetchBook | null>(null);
@@ -30,21 +14,20 @@ export default function BookPage() {
 
   const getKey = useLoaderData();
 
-  let didInit = false;
   useEffect(() => {
-    if (!didInit) {
-      didInit = true;
+    let didMount = false;
 
-      (async () => {
-        const response = await fetch(
-          `https://openlibrary.org/works/${getKey}.json`
-        );
-        const json = (await response.json()) as fetchBook;
-
-        setBookItem(json);
-      })();
-    }
-  }, []);
+    (async () => {
+      const response = await fetch(
+        `https://openlibrary.org/works/${getKey}.json`
+      );
+      const data = await response.json();
+      if (!didMount) {
+        setBookItem(data);
+      }
+      didMount = true;
+    })();
+  }, [getKey]);
 
   useEffect(() => {
     if (bookItem !== null) {
@@ -100,7 +83,7 @@ const BookPageLeft = ({ bookItem }: bookItemType) => {
   );
 };
 
-const BookPageRight = ({ bookItem, authors }: authorsAndbooksType) => {
+const BookPageRight = ({ bookItem, authors }: authorsAndBooksType) => {
   return (
     <>
       <div className="book_page_right">
@@ -111,7 +94,7 @@ const BookPageRight = ({ bookItem, authors }: authorsAndbooksType) => {
   );
 };
 
-const BookPageRightDetails = ({ bookItem, authors }: authorsAndbooksType) => {
+const BookPageRightDetails = ({ bookItem, authors }: authorsAndBooksType) => {
   const authorPrefix = authors.length === 1 ? 'AUTHOR' : 'AUTHORS';
 
   let filteredSubjects = null;

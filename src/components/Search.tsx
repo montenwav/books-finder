@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../hooks/reducerHooks';
-import { fetchSearch, setIsSearching } from '../slices/SearchSlice';
-import { fetchAuthors } from '../slices/BooksSlice';
+import { setIsSearching } from '../slices/SearchSlice';
+import { fetchAuthors, fetchSearch } from '../fetchThunks';
 
 export default function Search() {
   const [value, setValue] = useState('');
@@ -18,7 +18,7 @@ export default function Search() {
       }
     }, 500);
     return () => clearTimeout(searchTimeout);
-  }, [value]);
+  }, [value, dispatch]);
 
   return (
     <div className="search_main">
@@ -54,49 +54,35 @@ const SearchedContent = () => {
     }
   });
 
-  const uniqAuthor = Array.from(authorMap.entries()).map(([name, key]) => ({
-    name,
-    authorKey: key,
+  const uniqAuthor = Array.from(authorMap.entries()).map(([title, key]) => ({
+    title,
+    key: key,
   }));
   const uniqBook = Array.from(bookMap.entries()).map(([title, key]) => ({
     title,
-    bookKey: key,
+    key: key,
   }));
 
   return (
     <div className="search_outer">
       <div className="search_inner">
-        <SearchedBooks uniqBook={uniqBook} />
-        <SearchedAuthors uniqAuthor={uniqAuthor} />
+        <SearchedItems arr={uniqBook} type="authors" />
+        <SearchedItems arr={uniqAuthor} type="books" />
       </div>
     </div>
   );
 };
 
-const SearchedBooks = ({ uniqBook }: { uniqBook: any[] }) => {
-  const { searchedItems } = useAppSelector((state) => state.search);
-
-  return (
-    <div className="searched_books">
-      <h3>BOOKS</h3>
-      <div className="searched_content">
-        {searchedItems.length ? (
-          <>
-            {uniqBook.map((book, index) => (
-              <a href={`/books${book.bookKey}`} key={index}>
-                {book.title}
-              </a>
-            ))}
-          </>
-        ) : (
-          <p className='not-found'>No results found</p>
-        )}
-      </div>
-    </div>
-  );
-};
-
-const SearchedAuthors = ({ uniqAuthor }: { uniqAuthor: any[] }) => {
+const SearchedItems = ({
+  arr,
+  type,
+}: {
+  arr: {
+    title: string;
+    key: string;
+  }[];
+  type: string;
+}) => {
   const { searchedItems } = useAppSelector((state) => state.search);
   const dispatch = useAppDispatch();
 
@@ -116,23 +102,29 @@ const SearchedAuthors = ({ uniqAuthor }: { uniqAuthor: any[] }) => {
   };
 
   return (
-    <div className="searched_authors">
-      <h3>AUTHORS</h3>
+    <div className={`searched_${type === 'books' ? 'books' : 'authors'}`}>
+      <h3>{type === 'books' ? 'BOOKS' : 'AUTHORS'}</h3>
       <div className="searched_content">
-        {!searchedItems.length ? (
-          <p className='not-found'>No results found</p>
-        ) : (
+        {searchedItems.length ? (
           <>
-            {uniqAuthor.map((author, index) => (
-              <a
-                href={'/'}
-                onClick={() => handleAuthor(author.authorKey, author.name)}
-                key={index}
-              >
-                {author.name}
-              </a>
-            ))}
+            {arr.map((book, index) =>
+              type === 'books' ? (
+                <a href={`/books${book.key}`} key={index}>
+                  {book.title}
+                </a>
+              ) : (
+                <a
+                  href={'/'}
+                  onClick={() => handleAuthor(book.key, book.title)}
+                  key={index}
+                >
+                  {book.title}
+                </a>
+              )
+            )}
           </>
+        ) : (
+          <p className="not-found">No results found</p>
         )}
       </div>
     </div>

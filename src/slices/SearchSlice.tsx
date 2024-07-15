@@ -1,4 +1,5 @@
-import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { fetchSearch } from '../fetchThunks';
 
 interface stateInterface {
   searchedItems:
@@ -33,17 +34,6 @@ export const searchSlice = createSlice({
     });
   },
 });
-
-export const fetchSearch = createAsyncThunk(
-  'search/fetchSearch',
-  async (bookName: string) => {
-    const response = await fetch(
-      `https://openlibrary.org/search.json?q=${bookName}&fields=*,availability&limit=5`
-    );
-    const json = await response.json();
-    return json.docs;
-  }
-);
 
 export const { setIsSearching } = searchSlice.actions;
 export default searchSlice.reducer;

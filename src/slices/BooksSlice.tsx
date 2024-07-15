@@ -1,9 +1,10 @@
-import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-
-interface stateInterface {
-  entities: {};
-  status: 'idle' | 'loading' | 'loaded';
-}
+import { createSlice } from '@reduxjs/toolkit';
+import { stateInterface } from '../types/fetchTypes';
+import {
+  fetchRecommendations,
+  fetchAuthors,
+  fetchCategories,
+} from '../fetchThunks';
 
 const initialState: stateInterface = {
   entities: {},
@@ -39,58 +40,5 @@ export const booksSlice = createSlice({
       });
   },
 });
-
-export const fetchCategories = createAsyncThunk(
-  'books/fetchCategories',
-  async (pagePayload: {
-    sortKey: string;
-    perPage: number;
-    activePage: number;
-    filterBy: string;
-  }) => {
-    const { sortKey, perPage, activePage, filterBy } = pagePayload;
-    const offset: number = activePage * perPage - perPage;
-
-    const response = await fetch(
-      `https://openlibrary.org/subjects/${sortKey}.json?limit=${perPage}&offset=${offset}${
-        filterBy === 'relevance' ? '' : `&sort=${filterBy}`
-      }`
-    );
-    return await response.json();
-  }
-);
-
-export const fetchAuthors = createAsyncThunk(
-  'books/fetchAuthors',
-  async (pagePayload: {
-    sortKey: string;
-    perPage: number;
-    activePage: number;
-  }) => {
-    const { sortKey, perPage, activePage } = pagePayload;
-    const offset: number = activePage * perPage - perPage;
-
-    const response = await fetch(
-      `https://openlibrary.org${sortKey}/works.json?limit=${perPage}&offset=${offset}`
-    );
-    return await response.json();
-  }
-);
-
-export const fetchRecommendations = createAsyncThunk(
-  'books/fetchRecommendations',
-  async (pagePayload: { perPage: number; activePage: number }) => {
-    const { perPage, activePage } = pagePayload;
-    const response = await fetch(
-      `https://openlibrary.org/people/mekBot/books/want-to-read.json?limit=${perPage}&page=${activePage}`
-    );
-
-    const json = await response.json();
-    const entries = json.reading_log_entries;
-    const works = entries.map((entity: any) => entity.work);
-
-    return { ...json, reading_log_entries: [...works] };
-  }
-);
 
 export default booksSlice.reducer;

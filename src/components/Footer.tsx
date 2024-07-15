@@ -1,10 +1,9 @@
-import {handleClear} from '../App'
+import { handleClear } from '../functions/handleClear';
 
 export default function Footer() {
   return (
     <footer>
-      <div onClick={handleClear} 
-      className="hr"></div>
+      <div onClick={handleClear} className="hr"></div>
       <a href="/">
         <div className="inner_footer">
           <img src="/favicon.png" />

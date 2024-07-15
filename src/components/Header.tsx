@@ -1,7 +1,7 @@
 import { useAppDispatch, useAppSelector } from '../hooks/reducerHooks';
 import { setIsSearching } from '../slices/SearchSlice';
 import Search from './Search';
-import { handleClear } from '../App';
+import { handleClear } from '../functions/handleClear';
 
 export default function Header() {
   const { isSearching } = useAppSelector((state) => state.search);
@@ -33,13 +33,13 @@ export const LeftHeader = ({ handleClear }: { handleClear: () => void }) => {
 };
 
 const RightHeader = () => {
-  const {isSearching} = useAppSelector(state => state.search)
+  const { isSearching } = useAppSelector((state) => state.search);
   const dispatch = useAppDispatch();
 
   const handleClick = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-    event.stopPropagation()
-    dispatch(setIsSearching(!isSearching))
-  }
+    event.stopPropagation();
+    dispatch(setIsSearching(!isSearching));
+  };
 
   return (
     <div onClick={(event) => handleClick(event)} className="search">
