@@ -1,9 +1,13 @@
 import { useAppSelector } from '../hooks/reducerHooks';
-import { displayBooksType } from '../types/fetchTypes';
+import {
+  categoriesType,
+  entitiesType,
+  recommendationType,
+  authorsType,
+} from '../types/fetchTypes';
 
 export default function Books() {
-  const { entities } = useAppSelector((state) => state.books);
-  const { status } = useAppSelector((state) => state.books);
+  const { entities, status } = useAppSelector((state) => state.books);
 
   if (status === 'loading') {
     return <h2 className="loading">Loading...</h2>;
@@ -12,17 +16,20 @@ export default function Books() {
   }
 }
 
-const DisplayBooks = ({ entities }: { entities: displayBooksType }) => {
+const DisplayBooks = ({ entities }: { entities: entitiesType }) => {
   const category = localStorage.getItem('category') || '';
   const items: any =
-    entities.reading_log_entries || entities.works || entities.entries;
+    (entities as recommendationType).reading_log_entries ||
+    (entities as categoriesType).works ||
+    (entities as authorsType).entries;
+  console.log(items);
 
   if (items != undefined) {
     return (
       <div className="books_main">
         {category && <h3 className="category_name">{category}</h3>}
         <div className="books_inner">
-          {Object.keys(items).map((entityId) => (
+          {Object.keys(items).map((entityId: string) => (
             <a key={entityId} href={`/books${items[entityId].key}`}>
               <div className="book_item">
                 <img

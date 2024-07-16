@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { changePage } from '../slices/PagesSlice';
 import { useAppDispatch, useAppSelector } from '../hooks/reducerHooks';
 import { setPerPage, setFilterBy } from '../slices/FiltersSlice';
@@ -18,23 +18,22 @@ export default function Filters() {
   const { entities, status } = useAppSelector((state) => state.books);
   const { activePage } = useAppSelector((state) => state.pages);
   const { perPage, filterBy } = useAppSelector((state) => state.filters);
-
   const dispatch = useAppDispatch();
 
+  const didMount = useRef(false);
+
   // Pagination
-  const handleChangePage = (activePage: number) => {
-    let didMount = false;
+  const handleChangePage = useCallback(
+    (activePage: number) => {
+      const works: number | undefined =
+        (entities as worksType).numFound || (entities as worksType).work_count;
+      const numberOfPages = Math.ceil(works! / perPage);
+      if (activePage <= 1) activePage = 1;
+      else if (activePage > numberOfPages) activePage = numberOfPages;
 
-    const works: number | undefined =
-      (entities as worksType).numFound || (entities as worksType).work_count;
-    const numberOfPages = Math.ceil(works! / perPage);
-    if (activePage <= 1) activePage = 1;
-    else if (activePage > numberOfPages) activePage = numberOfPages;
+      localStorage.setItem('activePage', JSON.stringify(activePage));
+      dispatch(changePage({ activePage, numberOfPages }));
 
-    localStorage.setItem('activePage', JSON.stringify(activePage));
-    dispatch(changePage({ activePage, numberOfPages }));
-
-    if (didMount) {
       switch (sortBy) {
         case 'category': {
           dispatch(fetchCategories({ sortKey, perPage, activePage, filterBy }));
@@ -52,21 +51,26 @@ export default function Filters() {
           throw new Error('Сортировка не найдена');
         }
       }
-    }
-    didMount = true;
-  };
+    },
+    [filterBy, sortBy, entities, dispatch, perPage, sortKey]
+  );
 
   // Запускает карточки
   useEffect(() => {
-    handleChangePage(activePage);
-  }, [perPage, filterBy]);
+    if (!didMount.current) {
+      handleChangePage(activePage);
+      didMount.current = true;
+    }
+  }, [perPage, filterBy, activePage, handleChangePage]);
 
   return (
     <>
       <div className="filters_main">
         <div className="filters_left">
-          {sortBy === 'category' && <FilterBy />}
-          <PerPage />
+          {sortBy === 'category' && (
+            <DisplayFilters arr={filterByArr} type="filterBy" />
+          )}
+          <DisplayFilters arr={perPageArr} type="perPage" />
         </div>
         <div className="filters-right">
           {status === 'loaded' && (
@@ -79,49 +83,64 @@ export default function Filters() {
   );
 }
 
-const FilterBy = () => {
+const DisplayFilters = ({
+  arr,
+  type,
+}: {
+  arr: {
+    id: number;
+    value: string;
+    child?: string;
+  }[];
+  type: string;
+}) => {
   const { filterBy } = useAppSelector((state) => state.filters);
+  const { perPage } = useAppSelector((state) => state.filters);
   const dispatch = useAppDispatch();
 
-  const handeChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+  const handlePerPageChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    dispatch(setPerPage(Number(event.target.value)));
+    localStorage.setItem('perPage', JSON.stringify(event.target.value));
+  };
+
+  const handleFilterByChange = (
+    event: React.ChangeEvent<HTMLSelectElement>
+  ) => {
     localStorage.setItem('filterBy', event.target.value);
     dispatch(setFilterBy(event.target.value));
   };
 
   return (
-    <div className="filter_by">
-      <p>FILTER BY: </p>
-      <select
-        value={filterBy ? filterBy : ''}
-        onChange={(event) => handeChange(event)}
-      >
-        <option value="relevance">Relevance</option>
-        <option value="new">Newest to oldest</option>
-        <option value="old">Oldest no newest</option>
-        <option value="rating">Best rating</option>
-      </select>
-    </div>
-  );
-};
-
-const PerPage = () => {
-  const { perPage } = useAppSelector((state) => state.filters);
-  const dispatch = useAppDispatch();
-
-  const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    dispatch(setPerPage(Number(event.target.value)));
-    localStorage.setItem('perPage', JSON.stringify(event.target.value));
-  };
-
-  return (
     <div className="per_page_main">
-      <p>PER PAGE: </p>
-      <select value={perPage} onChange={handleChange}>
-        <option value={3}>3</option>
-        <option value={6}>6</option>
-        <option value={9}>9</option>
-        <option value={12}>12</option>
+      <p>{type === 'perPage' ? 'PERPAGE: ' : 'FILTER BY: '}</p>
+      <select
+        value={type === 'perPage' ? perPage : filterBy}
+        onChange={(event) =>
+          type === 'perPage'
+            ? handlePerPageChange(event)
+            : handleFilterByChange(event)
+        }
+      >
+        {arr.map((option) => (
+          <option key={option.id} value={option.value}>
+            {type === 'perPage' ? option.value : option.child}
+          </option>
+        ))}
       </select>
     </div>
   );
 };
+
+const filterByArr = [
+  { id: 0, value: 'relevance', child: 'Relevance' },
+  { id: 0, value: 'new', child: 'Newest to oldest' },
+  { id: 0, value: 'old', child: 'Oldest no newest' },
+  { id: 0, value: 'rating', child: 'Best rating' },
+];
+
+const perPageArr = [
+  { id: 0, value: '3' },
+  { id: 1, value: '6' },
+  { id: 2, value: '9' },
+  { id: 3, value: '12' },
+];

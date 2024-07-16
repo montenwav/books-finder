@@ -102,8 +102,8 @@ const SearchedItems = ({
   };
 
   return (
-    <div className={`searched_${type === 'books' ? 'books' : 'authors'}`}>
-      <h3>{type === 'books' ? 'BOOKS' : 'AUTHORS'}</h3>
+    <div className={`searched_${type === 'authors' ? 'books' : 'authors'}`}>
+      <h3>{type === 'authors' ? 'BOOKS' : 'AUTHORS'}</h3>
       <div className="searched_content">
         {searchedItems.length ? (
           <>
