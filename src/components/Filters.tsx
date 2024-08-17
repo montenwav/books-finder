@@ -133,9 +133,9 @@ const DisplayFilters = ({
 
 const filterByArr = [
   { id: 0, value: 'relevance', child: 'Relevance' },
-  { id: 0, value: 'new', child: 'Newest to oldest' },
-  { id: 0, value: 'old', child: 'Oldest no newest' },
-  { id: 0, value: 'rating', child: 'Best rating' },
+  { id: 1, value: 'new', child: 'Newest to oldest' },
+  { id: 2, value: 'old', child: 'Oldest no newest' },
+  { id: 3, value: 'rating', child: 'Best rating' },
 ];
 
 const perPageArr = [
