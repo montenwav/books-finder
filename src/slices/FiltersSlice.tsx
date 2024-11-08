@@ -1,16 +1,16 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 
-const perPage = Number(localStorage.getItem('perPage'))
-const filterBy = localStorage.getItem('filterBy')
+const perPage = Number(localStorage.getItem('perPage')) || 12;
+const filterBy = localStorage.getItem('filterBy');
 
 interface stateInterface {
-  perPage: number,
-  filterBy: string
+  perPage: number;
+  filterBy: string;
 }
 
 const initialState: stateInterface = {
-    perPage: perPage || 12,
-    filterBy: 'relevance' || filterBy
+  perPage: perPage,
+  filterBy: 'relevance' || filterBy,
 };
 
 export const filtersSlice = createSlice({
@@ -18,11 +18,11 @@ export const filtersSlice = createSlice({
   initialState,
   reducers: {
     setPerPage(state, action: PayloadAction<number>) {
-        state.perPage = action.payload
+      state.perPage = action.payload;
     },
     setFilterBy(state, action: PayloadAction<string>) {
-      state.filterBy = action.payload
-  },
+      state.filterBy = action.payload;
+    },
   },
 });
 

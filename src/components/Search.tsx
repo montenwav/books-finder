@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../hooks/reducerHooks';
 import { setIsSearching } from '../slices/SearchSlice';
 import { fetchAuthors, fetchSearch } from '../fetchThunks';
@@ -6,10 +6,18 @@ import { fetchAuthors, fetchSearch } from '../fetchThunks';
 export default function Search() {
   const [value, setValue] = useState('');
   const dispatch = useAppDispatch();
+  const { isSearching } = useAppSelector((state) => state.search);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setValue(event.target.value);
   };
+
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [isSearching]);
 
   useEffect(() => {
     const searchTimeout = setTimeout(() => {
@@ -27,6 +35,7 @@ export default function Search() {
         className="search_input"
         type="text"
         value={value}
+        ref={inputRef}
         onChange={handleChange}
       />
       {value.length >= 3 && <SearchedContent />}
@@ -54,11 +63,11 @@ const SearchedContent = () => {
     }
   });
 
-  const uniqAuthor = Array.from(authorMap.entries()).map(([title, key]) => ({
+  const uniqAuthors = Array.from(authorMap.entries()).map(([title, key]) => ({
     title,
     key: key,
   }));
-  const uniqBook = Array.from(bookMap.entries()).map(([title, key]) => ({
+  const uniqBooks = Array.from(bookMap.entries()).map(([title, key]) => ({
     title,
     key: key,
   }));
@@ -66,8 +75,8 @@ const SearchedContent = () => {
   return (
     <div className="search_outer">
       <div className="search_inner">
-        <SearchedItems arr={uniqBook} type="authors" />
-        <SearchedItems arr={uniqAuthor} type="books" />
+        <SearchedItems arr={uniqAuthors} type="authors" />
+        <SearchedItems arr={uniqBooks} type="books" />
       </div>
     </div>
   );
@@ -86,12 +95,12 @@ const SearchedItems = ({
   const { searchedItems } = useAppSelector((state) => state.search);
   const dispatch = useAppDispatch();
 
-  const handleAuthor = (authorKey: string, autorName: string) => {
+  const handleAuthor = (authorKey: string, authorName: string) => {
     const sortKey = `/authors/${authorKey}`;
     const perPage = 12;
     const activePage = 1;
 
-    localStorage.setItem('category', autorName);
+    localStorage.setItem('category', authorName);
     localStorage.setItem('sortKey', sortKey);
     localStorage.setItem('sortBy', 'author');
     localStorage.setItem('activePage', '1');
@@ -102,8 +111,8 @@ const SearchedItems = ({
   };
 
   return (
-    <div className={`searched_${type === 'authors' ? 'books' : 'authors'}`}>
-      <h3>{type === 'authors' ? 'BOOKS' : 'AUTHORS'}</h3>
+    <div className={`searched_${type === 'books' ? 'books' : 'authors'}`}>
+      <h3>{type === 'books' ? 'BOOKS' : 'AUTHORS'}</h3>
       <div className="searched_content">
         {searchedItems.length ? (
           <>

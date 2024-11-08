@@ -38,6 +38,7 @@ const RightHeader = () => {
 
   const handleClick = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     event.stopPropagation();
+
     dispatch(setIsSearching(!isSearching));
   };
 

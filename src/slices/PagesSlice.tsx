@@ -27,6 +27,7 @@ export const pagesSlice = createSlice({
       action: PayloadAction<{ activePage: number; numberOfPages?: number }>
     ) {
       const { numberOfPages, activePage } = action.payload;
+      console.log(numberOfPages);
 
       return {
         ...state,

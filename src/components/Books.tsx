@@ -5,9 +5,13 @@ import {
   recommendationType,
   authorsType,
 } from '../types/fetchTypes';
+import { useFetchCategory } from '../hooks/useFetchCategory';
 
 export default function Books() {
   const { entities, status } = useAppSelector((state) => state.books);
+
+  // Запускает карточки
+  useFetchCategory();
 
   if (status === 'loading') {
     return <h2 className="loading">Loading...</h2>;
