@@ -43,6 +43,8 @@ export default function Search() {
   );
 }
 
+type uniqBookType = { title: string; key: string }[];
+
 const SearchedContent = () => {
   const { searchedItems } = useAppSelector((state) => state.search);
 
@@ -50,27 +52,40 @@ const SearchedContent = () => {
   const bookMap = new Map<string, string>();
 
   searchedItems.forEach((book) => {
-    const authorName = book.author_name[0];
-    const authorKey = book.author_key[0];
-    const bookName = book.title;
-    const bookKey = book.key;
+    let authorName;
+    if (book.author_name) authorName = book.author_name[0];
 
-    if (!authorMap.has(authorName)) {
+    let authorKey;
+    if (book.author_key) authorKey = book.author_key[0];
+
+    let bookName;
+    if (book.title) bookName = book.title;
+
+    let bookKey;
+    if (book.key) bookKey = book.key;
+
+    if (authorName && authorKey) {
       authorMap.set(authorName, authorKey);
     }
-    if (!bookMap.has(bookName)) {
+    if (bookKey && bookName) {
       bookMap.set(bookName, bookKey);
     }
   });
 
-  const uniqAuthors = Array.from(authorMap.entries()).map(([title, key]) => ({
-    title,
-    key: key,
-  }));
-  const uniqBooks = Array.from(bookMap.entries()).map(([title, key]) => ({
-    title,
-    key: key,
-  }));
+  let uniqAuthors: uniqBookType = [];
+  if (authorMap.size != 0) {
+    uniqAuthors = Array.from(authorMap.entries()).map(([title, key]) => ({
+      title,
+      key: key,
+    }));
+  }
+
+  let uniqBooks: uniqBookType = [];
+  if (bookMap.size != 0)
+    uniqBooks = Array.from(bookMap.entries()).map(([title, key]) => ({
+      title,
+      key: key,
+    }));
 
   return (
     <div className="search_outer">
@@ -92,7 +107,6 @@ const SearchedItems = ({
   }[];
   type: string;
 }) => {
-  const { searchedItems } = useAppSelector((state) => state.search);
   const dispatch = useAppDispatch();
 
   const handleAuthor = (authorKey: string, authorName: string) => {
@@ -110,11 +124,13 @@ const SearchedItems = ({
     dispatch(fetchAuthors({ sortKey, perPage, activePage }));
   };
 
+  console.log(`arr: ${JSON.stringify(arr)}`);
+
   return (
     <div className={`searched_${type === 'books' ? 'books' : 'authors'}`}>
       <h3>{type === 'books' ? 'BOOKS' : 'AUTHORS'}</h3>
       <div className="searched_content">
-        {searchedItems.length ? (
+        {arr.length != 0 ? (
           <>
             {arr.map((book, index) =>
               type === 'books' ? (
