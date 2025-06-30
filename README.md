@@ -9,6 +9,8 @@
 ## To run project locally:
 
 ```
+git clone https://github.com/montenwav/books-finder.git
+cd books-finder
 npm i
 npm run build
 npm start
