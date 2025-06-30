@@ -15,3 +15,6 @@ npm i
 npm run build
 npm start
 ```
+# Contributing
+
+Contributions of any kind welcome!
